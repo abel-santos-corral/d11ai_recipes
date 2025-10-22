@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  drupal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: drupal11
+    ports:
+      - "8080:80"
+    volumes:
+      - drupal_modules:/opt/drupal/web/modules
+      - drupal_profiles:/opt/drupal/web/profiles
+      - drupal_themes:/opt/drupal/web/themes
+      - drupal_sites:/opt/drupal/web/sites
+      - drupal_recipes:/opt/drupal/web/recipes
+    environment:
+      - DRUPAL_DATABASE_HOST=mysql
+      - DRUPAL_DATABASE_PORT=3306
+      - DRUPAL_DATABASE_NAME=drupal
+      - DRUPAL_DATABASE_USERNAME=drupal
+      - DRUPAL_DATABASE_PASSWORD=drupal
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - drupal-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: drupal11_mysql
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_DATABASE=drupal
+      - MYSQL_USER=drupal
+      - MYSQL_PASSWORD=drupal
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - drupal-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: drupal11_phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      - PMA_HOST=mysql
+      - PMA_USER=drupal
+      - PMA_PASSWORD=drupal
+    depends_on:
+      - mysql
+    restart: unless-stopped
+    networks:
+      - drupal-network
+
+volumes:
+  drupal_modules:
+  drupal_profiles:
+  drupal_themes:
+  drupal_sites:
+  drupal_recipes:
+  mysql_data:
+
+networks:
+  drupal-network:
+    driver: bridge

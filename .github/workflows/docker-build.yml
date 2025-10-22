@@ -1,0 +1,47 @@
+name: Docker Build and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Build Docker image
+      run: |
+        docker-compose build
+    
+    - name: Start containers
+      run: |
+        docker-compose up -d
+        sleep 30
+    
+    - name: Check containers are running
+      run: |
+        docker-compose ps
+        docker-compose logs drupal
+    
+    - name: Test Drupal container
+      run: |
+        docker exec drupal11 php --version
+        docker exec drupal11 composer --version
+        docker exec drupal11 drush --version
+    
+    - name: Check web server
+      run: |
+        curl -f http://localhost:8080 || exit 1
+    
+    - name: Stop containers
+      if: always()
+      run: |
+        docker-compose down -v

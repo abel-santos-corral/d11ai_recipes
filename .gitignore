@@ -1,0 +1,50 @@
+# Drupal files
+web/
+vendor/
+recipes/
+!recipes/.gitkeep
+
+# Backup files
+*.sql
+*.sql.gz
+backup/
+files-backup/
+
+# Environment files
+.env
+.env.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+tmp/
+temp/
+
+# Node modules (if using any frontend tools)
+node_modules/
+
+# Composer
+composer.lock
+composer.phar
+
+# Docker volumes (data persists in Docker volumes)
+mysql_data/
+drupal_modules/
+drupal_profiles/
+drupal_themes/
+drupal_sites/
